@@ -78,6 +78,7 @@ export default function(opts = {}) {
     const match = mockData && matchMock(req, mockData);
     if (match) {
       debug(`mock matched: [${match.method}] ${match.path}`);
+      // match.handler 类似 middleware，这里没有给 app.use() 使用，而是直接传入参数调用
       return match.handler(req, res, next);
     } else {
       return next();

@@ -15,6 +15,11 @@ const BODY_PARSED_METHODS = ['post', 'put', 'patch', 'delete'];
 function createHandler(method, path, handler) {
   return function(req, res, next) {
     if (BODY_PARSED_METHODS.includes(method)) {
+      // NOTE:
+      // body-parser: 解析 body 的 middleware
+      // middleware 返回一个函数，类似： (req, res, next) => { ... }，然后 app.use() 这个函数
+      // 一般对 req, res 做处理或者调用，然后调用 next() 处理后面的操作
+      // 这里没有传给 app.use() 使用，而是直接传入参数调用这个函数，next 传入一个函数，middleware 处理完自己事情会调用 next() 执行这个函数
       bodyParser.json({ limit: '5mb', strict: false })(req, res, () => {
         bodyParser.urlencoded({ limit: '5mb', extended: true })(
           req,
@@ -30,6 +35,9 @@ function createHandler(method, path, handler) {
 
     function sendData() {
       if (typeof handler === 'function') {
+        // NOTE:
+        // multer：处理 `multipart/form-data` 的 middleware
+        // 用法和上面的 body-parser 一致
         multer().any()(req, res, () => {
           handler(req, res, next);
         });
@@ -56,6 +64,7 @@ export function normalizeConfig(config) {
       path,
       re,
       keys,
+      // NOTE: createHandler(...) 返回一个 middleware： (req, res, next) => { ... }
       handler: createHandler(method, path, handler),
     });
     return memo;
