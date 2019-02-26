@@ -17,9 +17,9 @@ function createHandler(method, path, handler) {
     if (BODY_PARSED_METHODS.includes(method)) {
       // NOTE:
       // body-parser: 解析 body 的 middleware
-      // middleware 返回一个函数，类似： (req, res, next) => { ... }，然后 app.use() 这个函数
-      // 一般对 req, res 做处理或者调用，然后调用 next() 处理后面的操作
-      // 这里没有传给 app.use() 使用，而是直接传入参数调用这个函数，next 传入一个函数，middleware 处理完自己事情会调用 next() 执行这个函数
+      // bodyParser.json() 返回一个 middleware，含有三个参数的函数：(req, res, next) => { ... }，然后 app.use() 这个函数
+      // app 运行时会调用这个函数，并且传入参数(req, res, next)，这个函数处理完后调用 next() 执行后面的操作
+      // 这里没有传给 app.use() 使用，而是直接传入参数调用这个函数，next 传入一个函数，供 middleware 处理完自己事情后调用
       bodyParser.json({ limit: '5mb', strict: false })(req, res, () => {
         bodyParser.urlencoded({ limit: '5mb', extended: true })(
           req,
@@ -48,6 +48,7 @@ function createHandler(method, path, handler) {
   };
 }
 
+// 解析和整理 mock 数据
 export function normalizeConfig(config) {
   return Object.keys(config).reduce((memo, key) => {
     const handler = config[key];
@@ -58,6 +59,7 @@ export function normalizeConfig(config) {
     );
     const { method, path } = parseKey(key);
     const keys = [];
+    // NOTE: 生成匹配路径的正则
     const re = pathToRegexp(path, keys);
     memo.push({
       method,
@@ -91,6 +93,11 @@ function parseKey(key) {
 
 function noop() {}
 
+// NOTE:
+// 获取 mock 文件
+// .umirc.mock.js 和 .umirc.mock.ts 优先
+// 没有的话，取 mock 文件夹下的文件，和 src/pages 里的 _mock.js 
+// 返回文件路径的数组
 export function getMockFiles(opts) {
   const { cwd, absPagesPath, config = {} } = opts;
   const { absMockPath, absConfigPath, absConfigPathWithTS } = getPaths(cwd);
@@ -128,6 +135,7 @@ export function getMockFiles(opts) {
   }
 }
 
+// 读取 mock 文件
 export function getMockConfigFromFiles(files) {
   return files.reduce((memo, mockFile) => {
     try {
