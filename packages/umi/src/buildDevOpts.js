@@ -4,6 +4,8 @@ import isWindows from 'is-windows';
 import { winPath } from 'umi-utils';
 import { parse } from 'dotenv';
 
+// NOTE: 读取 .env .env.local 配置，根据 args 返回 { cwd }
+
 export default function(opts = {}) {
   loadDotEnv();
 
@@ -24,6 +26,7 @@ export default function(opts = {}) {
   };
 }
 
+// NOTE: 读取 .env .env.local 文件的配置，并写入到 process.env 中
 function loadDotEnv() {
   const baseEnvPath = join(process.cwd(), '.env');
   const localEnvPath = `${baseEnvPath}.local`;

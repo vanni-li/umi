@@ -14,6 +14,9 @@ import { watch, unwatch } from './getConfig/watch';
 import isEqual from './isEqual';
 
 class UserConfig {
+  /*
+   * NOTE: 获取配置文件对象
+   */
   static getConfig(opts = {}) {
     const { cwd, service } = opts;
     return getUserConfig({

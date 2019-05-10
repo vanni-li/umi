@@ -35,6 +35,7 @@ export default class Service {
     this.generators = {};
 
     // resolve user config
+    // NOTE: 获取配置文件对象
     this.config = UserConfig.getConfig({
       cwd: this.cwd,
       service: this,

@@ -10,6 +10,13 @@ interface IOpts {
   onError?: Function,
 }
 
+
+/**
+ * NOTE: 
+ * 返回配置文件的路径(只返回一个)
+ * 如果指定了配置文件，从配置文件取，否则从如下文件里取第一个存在的文件：
+ * ['.umirc.ts', '.umirc.js', 'config/config.ts', 'config/config.js']
+ */
 export function getConfigFile(cwd) {
   const files = process.env.UMI_CONFIG_FILE
     ? process.env.UMI_CONFIG_FILE.split(',').filter(v => v && v.trim())
@@ -24,6 +31,11 @@ export function getConfigFile(cwd) {
   return validFiles[0] && join(cwd, validFiles[0]);
 }
 
+/**
+ * NOTE:
+ * 给后缀加前缀，比如:
+ * .umirc.js  => .umirc.local.js
+ */
 export function addAffix(file, affix) {
   const ext = extname(file);
   return file.replace(new RegExp(`${ext}$`), `.${affix}${ext}`);
@@ -33,6 +45,9 @@ function defaultOnError(e) {
   console.error(e);
 }
 
+/**
+ * NOTE: 载入文件，类似于 require()
+ */
 function requireFile(f, opts: IOpts = {}) {
   if (!existsSync(f)) {
     return {};
@@ -53,6 +68,11 @@ export function mergeConfigs(...configs): IConfig {
   return extend(true, ...configs);
 }
 
+/**
+ * NOTE: 读取配置文件内容，会合并默认配置
+ * 当指定 UMI_ENV 时，还会合并 .umirc.${UMI_ENV}.js 文件
+ * 当开发环境时，还会合并 .umirc.local.js 
+ */
 export function getConfigByConfigFile(configFile, opts: IOpts = {}): IConfig {
   const umiEnv = process.env.UMI_ENV;
   const isDev = process.env.NODE_ENV === 'development';
@@ -68,6 +88,9 @@ export function getConfigByConfigFile(configFile, opts: IOpts = {}): IConfig {
   return mergeConfigs(...configs);
 }
 
+/** 
+ * NOTE: 返回所有可能的配置文件列表
+ */
 export function getConfigPaths(cwd): string[] {
   const env = process.env.UMI_ENV;
   return [
@@ -80,6 +103,10 @@ export function getConfigPaths(cwd): string[] {
   ];
 }
 
+
+/**
+ * NOTE: 清除配置文件的 require 缓存
+ */
 export function cleanConfigRequireCache(cwd) {
   const paths = getConfigPaths(cwd);
   Object.keys(require.cache).forEach(file => {
@@ -93,6 +120,9 @@ export function cleanConfigRequireCache(cwd) {
   });
 }
 
+/**
+ * NOTE: 获取配置文件内容
+ */
 export default function(opts: IOpts = {}): IConfig {
   const { cwd, defaultConfig } = opts;
   const absConfigFile = getConfigFile(cwd);
